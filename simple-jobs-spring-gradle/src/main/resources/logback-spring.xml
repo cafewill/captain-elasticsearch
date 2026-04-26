@@ -20,7 +20,7 @@
     <springProperty scope="context" name="ELASTICSEARCH_PERSISTENT_WRITER_THREAD" source="elasticsearch.persistent-writer-thread" defaultValue="false"/>
     <springProperty scope="context" name="ELASTICSEARCH_INCLUDE_MDC"   source="elasticsearch.include-mdc"                  defaultValue="true"/>
     <springProperty scope="context" name="ELASTICSEARCH_INCLUDE_KVP"   source="elasticsearch.include-kvp"                  defaultValue="true"/>
-    <springProperty scope="context" name="ELASTICSEARCH_OPERATION"     source="elasticsearch.operation"                    defaultValue="index"/>
+    <springProperty scope="context" name="ELASTICSEARCH_OPERATION"     source="elasticsearch.operation"                    defaultValue="create"/>
     <springProperty scope="context" name="ELASTICSEARCH_ERRORS_TO_STDERR" source="elasticsearch.errors-to-stderr"          defaultValue="true"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">

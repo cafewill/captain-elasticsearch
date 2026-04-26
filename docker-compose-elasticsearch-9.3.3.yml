@@ -1,7 +1,7 @@
 services:
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.3
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -19,7 +19,7 @@ services:
     ports:
       - "9200:9200"
     volumes:
-      - elasticsearch-8170-data:/usr/share/elasticsearch/data
+      - elasticsearch-9330-data:/usr/share/elasticsearch/data
     networks:
       - elasticsearch-net
     healthcheck:
@@ -29,7 +29,7 @@ services:
       retries: 10
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:8.17.0
+    image: docker.elastic.co/kibana/kibana:9.3.3
     container_name: kibana
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
@@ -44,7 +44,7 @@ services:
         condition: service_healthy
 
 volumes:
-  elasticsearch-8170-data:
+  elasticsearch-9330-data:
 
 networks:
   elasticsearch-net:

@@ -150,6 +150,7 @@ CHANGELOG.md                                       ← 변경 이력 관리 (필
 .who                                               ← 작업자 로컬 설정 (커밋 금지)
 
 # Docker 환경
+docker-compose-elasticsearch-9.3.3.yml       ← Elasticsearch 9.3.3 + Kibana 9.3.3 실행 (최신 stable)
 docker-compose-elasticsearch-8.17.0.yml      ← Elasticsearch 8.17.0 + Kibana 8.17.0 실행
 
 # 공용 라이브러리
