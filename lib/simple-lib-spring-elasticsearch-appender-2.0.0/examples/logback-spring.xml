@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="OPENSEARCH_WEB" class="com.cube.elasticsearch.ElasticsearchAppender">
+        <url>${elasticsearch.url}</url>
+        <index>${elasticsearch.index}</index>
+        <username>${elasticsearch.username:-}</username>
+        <password>${elasticsearch.password:-}</password>
+        <app>${elasticsearch.app:${spring.application.name:-app}}</app>
+        <env>${elasticsearch.env:${spring.profiles.active:-default}}</env>
+        <instanceId>${elasticsearch.instance-id:-}</instanceId>
+        <maxBatchBytes>${elasticsearch.max-batch-bytes:-262144}</maxBatchBytes>
+        <maxBatchSize>${elasticsearch.max-batch-size:-200}</maxBatchSize>
+        <maxMessageSize>${elasticsearch.max-message-size:-32768}</maxMessageSize>
+        <flushIntervalSeconds>${elasticsearch.flush-interval-seconds:-3}</flushIntervalSeconds>
+        <queueSize>${elasticsearch.queue-size:-10000}</queueSize>
+        <connectTimeoutMillis>${elasticsearch.connect-timeout-millis:-3000}</connectTimeoutMillis>
+        <readTimeoutMillis>${elasticsearch.read-timeout-millis:-5000}</readTimeoutMillis>
+        <retryInitialDelayMillis>${elasticsearch.retry-initial-delay-millis:-500}</retryInitialDelayMillis>
+        <retryMaxDelayMillis>${elasticsearch.retry-max-delay-millis:-10000}</retryMaxDelayMillis>
+        <maxRetries>${elasticsearch.max-retries:-3}</maxRetries>
+        <retryPartialFailures>${elasticsearch.retry-partial-failures:-true}</retryPartialFailures>
+        <trustAllSsl>${elasticsearch.trust-all-ssl:-true}</trustAllSsl>
+        <deadLetterLoggerName>${elasticsearch.dead-letter-logger-name:-com.cube.elasticsearch.deadletter}</deadLetterLoggerName>
+        <operation>${elasticsearch.operation:-create}</operation>
+        <timestampZone>${elasticsearch.timestamp-zone:-UTC}</timestampZone>
+        <includeMdc>${elasticsearch.include-mdc:-true}</includeMdc>
+        <includeKvp>${elasticsearch.include-kvp:-true}</includeKvp>
+        <errorsToStderr>${elasticsearch.errors-to-stderr:-true}</errorsToStderr>
+
+        <headers>
+            <header>
+                <name>Content-Type</name>
+                <value>application/x-ndjson</value>
+            </header>
+        </headers>
+
+        <properties>
+            <esProperty>
+                <name>stack_trace</name>
+                <value>%ex{full}</value>
+                <allowEmpty>false</allowEmpty>
+            </esProperty>
+        </properties>
+    </appender>
+
+    <appender name="OPENSEARCH_JOB" class="com.cube.elasticsearch.ElasticsearchJobAppender">
+        <url>${elasticsearch.url}</url>
+        <index>${elasticsearch.index}</index>
+        <username>${elasticsearch.username:-}</username>
+        <password>${elasticsearch.password:-}</password>
+        <app>${elasticsearch.app:${spring.application.name:-app}}</app>
+        <env>${elasticsearch.env:${spring.profiles.active:-default}}</env>
+        <instanceId>${elasticsearch.instance-id:-}</instanceId>
+        <maxBatchBytes>${elasticsearch.max-batch-bytes:-262144}</maxBatchBytes>
+        <maxBatchSize>${elasticsearch.max-batch-size:-200}</maxBatchSize>
+        <maxMessageSize>${elasticsearch.max-message-size:-32768}</maxMessageSize>
+        <flushIntervalSeconds>${elasticsearch.flush-interval-seconds:-3}</flushIntervalSeconds>
+        <queueSize>${elasticsearch.queue-size:-10000}</queueSize>
+        <connectTimeoutMillis>${elasticsearch.connect-timeout-millis:-3000}</connectTimeoutMillis>
+        <readTimeoutMillis>${elasticsearch.read-timeout-millis:-5000}</readTimeoutMillis>
+        <retryInitialDelayMillis>${elasticsearch.retry-initial-delay-millis:-500}</retryInitialDelayMillis>
+        <retryMaxDelayMillis>${elasticsearch.retry-max-delay-millis:-10000}</retryMaxDelayMillis>
+        <maxRetries>${elasticsearch.max-retries:-3}</maxRetries>
+        <retryPartialFailures>${elasticsearch.retry-partial-failures:-true}</retryPartialFailures>
+        <trustAllSsl>${elasticsearch.trust-all-ssl:-true}</trustAllSsl>
+        <deadLetterLoggerName>${elasticsearch.dead-letter-logger-name:-com.cube.elasticsearch.deadletter}</deadLetterLoggerName>
+        <operation>${elasticsearch.operation:-create}</operation>
+        <timestampZone>${elasticsearch.timestamp-zone:-UTC}</timestampZone>
+        <includeMdc>${elasticsearch.include-mdc:-true}</includeMdc>
+        <includeKvp>${elasticsearch.include-kvp:-true}</includeKvp>
+        <errorsToStderr>${elasticsearch.errors-to-stderr:-true}</errorsToStderr>
+
+        <headers>
+            <header>
+                <name>Content-Type</name>
+                <value>application/x-ndjson</value>
+            </header>
+        </headers>
+
+        <properties>
+            <esProperty>
+                <name>stack_trace</name>
+                <value>%ex{full}</value>
+                <allowEmpty>false</allowEmpty>
+            </esProperty>
+        </properties>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="OPENSEARCH_WEB"/>
+        <appender-ref ref="OPENSEARCH_JOB"/>
+    </root>
+</configuration>
