@@ -507,7 +507,7 @@ elasticsearch.requeue-on-failure=true
 elasticsearch.trust-all-ssl=true
 elasticsearch.persistent-writer-thread=true
 elasticsearch.include-kvp=true
-elasticsearch.operation=index
+elasticsearch.operation=create
 ```
 
 **④ SSL TrustAll (프라이밋 클라우드 자가 서명 인증서 대응, 3.0.0 기본 정책)**
@@ -577,7 +577,7 @@ public class RequestMdcFilter extends OncePerRequestFilter {
 ELASTICSEARCH_URL=http://localhost:9200
 ELASTICSEARCH_USERNAME=elastic
 ELASTICSEARCH_PASSWORD=Demo3543##
-ELASTICSEARCH_BULK_OPERATION=index
+ELASTICSEARCH_BULK_OPERATION=create
 ELASTICSEARCH_TRUST_ALL_SSL=true
 ELASTICSEARCH_TIMEOUT=10
 ELASTICSEARCH_MAX_RETRIES=3
@@ -798,25 +798,29 @@ logs-simple-jobs-python-flask-2025.01.15
 
 | 파일 | 버전 |
 |---|---|
+| `docker-compose-elasticsearch-9.3.3.yml` | Elasticsearch 9.3.3 + Kibana 9.3.3 (최신 stable) |
 | `docker-compose-elasticsearch-8.17.0.yml` | Elasticsearch 8.17.0 + Kibana 8.17.0 |
 
 ### 4-2. 실행
 
 ```bash
+# Elasticsearch 9.3.3 기준 (최신 stable)
+docker compose -f docker-compose-elasticsearch-9.3.3.yml up -d
+
 # Elasticsearch 8.17.0 기준
 docker compose -f docker-compose-elasticsearch-8.17.0.yml up -d
 
 # 상태 확인
-docker compose -f docker-compose-elasticsearch-8.17.0.yml ps
+docker compose -f docker-compose-elasticsearch-9.3.3.yml ps
 
 # 로그 확인
-docker compose -f docker-compose-elasticsearch-8.17.0.yml logs -f elasticsearch
+docker compose -f docker-compose-elasticsearch-9.3.3.yml logs -f elasticsearch
 
 # 중지
-docker compose -f docker-compose-elasticsearch-8.17.0.yml down
+docker compose -f docker-compose-elasticsearch-9.3.3.yml down
 
 # 데이터까지 완전 삭제
-docker compose -f docker-compose-elasticsearch-8.17.0.yml down -v
+docker compose -f docker-compose-elasticsearch-9.3.3.yml down -v
 ```
 
 ### 4-3. docker-compose 핵심 설정
