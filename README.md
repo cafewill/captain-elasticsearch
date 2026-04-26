@@ -18,6 +18,7 @@
 5. [Index 생성 및 앱 로그 모니터링 (curl)](#5-index-생성-및-앱-로그-모니터링-curl)
 6. [Kibana > Discover 활용](#6-kibana--discover-활용)
 7. [Kibana > Visualize 활용](#7-kibana--visualize-활용)
+8. [실행 및 모니터링 화면 예시](#8-실행-및-모니터링-화면-예시)
 
 ---
 
@@ -1387,6 +1388,43 @@ observabilityUseCase: "batch-scheduler-tracking" and runStatus: ("slow" or "degr
 | 배치 실행 상태별 건수 | `observabilityUseCase: "batch-scheduler-tracking"` |
 | 배치 평균/최대 실행 시간 | `observabilityUseCase: "batch-scheduler-tracking"` |
 | 워커 노드별 배치 처리량 | `observabilityUseCase: "batch-scheduler-tracking"` |
+
+---
+
+## 8. 실행 및 모니터링 화면 예시
+
+### 8-1. 앱 실행 화면
+
+각 배치잡 앱을 로컬에서 실행하면 터미널 로그가 지속적으로 출력되고, 동일한 로그가 Elasticsearch Appender를 통해 `logs-*` 인덱스로 전송된다.  
+아래 화면은 Spring Boot, Spring Boot + MDC, Node.js/NestJS 배치잡이 실행되며 일반 로그와 MDC 확장 로그를 생성하는 예시다.
+
+![Spring Gradle 배치잡 실행 로그](screenshots/captain-elasticsearch-2026-04-27-apps01.png)
+
+Spring Gradle 배치잡 실행 화면. `ScheduleService`가 주기적으로 system, manager, operator job 로그를 생성하고 Elasticsearch로 전송한다.
+
+![Spring Gradle with MDC 배치잡 실행 로그](screenshots/captain-elasticsearch-2026-04-27-apps02.png)
+
+Spring Gradle + MDC 배치잡 실행 화면. `traceId`, `jobName`, `jobRole`, `framework`, `appVariant` 같은 MDC 필드를 함께 적재해 Discover와 Dashboard에서 세부 필터링할 수 있다.
+
+![Node.js NestJS 배치잡 실행 로그](screenshots/captain-elasticsearch-2026-04-27-apps03.png)
+
+Node.js/NestJS 배치잡 실행 화면. 정상 로그와 오류성 로그가 함께 발생하며, 스택이 달라도 공통 필드(`@timestamp`, `app`, `env`, `level`, `message`) 기준으로 통합 조회할 수 있다.
+
+### 8-2. Discover 를 활용한 모니터링
+
+Discover 화면에서는 `logs-*` 데이터 뷰 기준으로 최근 로그를 시간순으로 확인하고, KQL 검색과 필드 패널을 활용해 앱별·레벨별·MDC 필드별 로그를 즉시 필터링한다.
+
+![Kibana Discover 로그 모니터링](screenshots/captain-elasticsearch-2026-04-27-discover.png)
+
+예시 화면은 `Last 15 minutes` 범위에서 약 2,500건 이상의 문서를 조회한 상태다. 좌측 필드 목록에서 `@timestamp_kst`, `app`, `elapsed_ms`, `apiRoute`, `jobName` 등 운영 분석에 필요한 필드를 선택해 테이블 컬럼으로 추가할 수 있다.
+
+### 8-3. Visualize 를 활용한 모니터링
+
+Visualize/Dashboard 화면에서는 Discover에서 확인한 로그를 집계하여 앱별 로그 건수, 시간대별 로그 추이, 오류 패턴, 성능 지표를 한 화면에서 추적한다.
+
+![Kibana Visualize 대시보드 모니터링](screenshots/captain-elasticsearch-2026-04-27-visualize.png)
+
+예시 대시보드는 `app` 기준 로그 건수를 막대 차트로 비교하고, `@timestamp` 기준 로그 발생량을 30초 단위 영역 차트로 표시한다. 앱 실행 상태와 로그 유입 추이를 함께 볼 수 있어 배치잡·REST API 앱의 정상 동작 여부를 빠르게 확인할 수 있다.
 
 ---
 
