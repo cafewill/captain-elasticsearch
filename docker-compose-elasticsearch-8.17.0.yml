@@ -26,7 +26,8 @@ services:
       test: ["CMD-SHELL", "curl -sf -u \"elastic:Demo3543##\" http://localhost:9200/_cluster/health | grep -q 'yellow\\|green'"]
       interval: 15s
       timeout: 10s
-      retries: 10
+      retries: 20
+      start_period: 60s
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.17.0
