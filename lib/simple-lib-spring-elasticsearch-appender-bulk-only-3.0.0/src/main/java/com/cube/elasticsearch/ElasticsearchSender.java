@@ -87,7 +87,8 @@ final class ElasticsearchSender {
         connection.setConnectTimeout(connectTimeout);
         connection.setReadTimeout(readTimeout);
 
-        if (connection instanceof HttpsURLConnection httpsURLConnection && sslSocketFactory != null) {
+        if (connection instanceof HttpsURLConnection && sslSocketFactory != null) {
+            HttpsURLConnection httpsURLConnection = (HttpsURLConnection) connection;
             httpsURLConnection.setSSLSocketFactory(sslSocketFactory);
             httpsURLConnection.setHostnameVerifier(NOOP_VERIFIER);
         }
@@ -95,7 +96,7 @@ final class ElasticsearchSender {
     }
 
     private SendResult analyzeBulkResponse(List<BulkPayloadBuilder.BulkItem> items, String body) throws Exception {
-        if (body == null || body.isBlank()) {
+        if (body == null || body.trim().isEmpty()) {
             return SendResult.success();
         }
 
@@ -131,7 +132,7 @@ final class ElasticsearchSender {
         if (!retryable.isEmpty()) {
             return SendResult.retryable(retryable, "partial retryable: " + fatalMessages, null);
         }
-        if (!fatalMessages.isEmpty()) {
+        if (fatalMessages.length() > 0) {
             return SendResult.fatal(fatalMessages.toString().trim(), null);
         }
         return SendResult.success();
@@ -142,7 +143,7 @@ final class ElasticsearchSender {
             return;
         }
         for (ElasticsearchHeader header : headers.getHeaders()) {
-            if (header == null || header.getName() == null || header.getName().isBlank()) {
+            if (header == null || header.getName() == null || header.getName().trim().isEmpty()) {
                 continue;
             }
             connection.setRequestProperty(header.getName(), header.getValue() == null ? "" : header.getValue());
@@ -178,8 +179,12 @@ final class ElasticsearchSender {
             return "";
         }
         try (InputStream is = inputStream; ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            is.transferTo(baos);
-            return baos.toString(StandardCharsets.UTF_8);
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = is.read(buffer)) != -1) {
+                baos.write(buffer, 0, read);
+            }
+            return baos.toString(StandardCharsets.UTF_8.name());
         } catch (Exception e) {
             return "";
         }
@@ -193,7 +198,7 @@ final class ElasticsearchSender {
     }
 
     private String resolveBulkUrl() {
-        if (url == null || url.isBlank()) {
+        if (url == null || url.trim().isEmpty()) {
             return url;
         }
         return url.endsWith("/_bulk") ? url : url + "/_bulk";
