@@ -134,10 +134,11 @@ public abstract class AbstractElasticsearchAppender extends UnsynchronizedAppend
             eventObject.getCallerData();
         }
         if (resolvedAutoStackTraceLevelInt < Level.OFF.levelInt
-                && eventObject instanceof LoggingEvent le
-                && le.getThrowableProxy() == null
-                && le.getLevel() != null
-                && le.getLevel().levelInt >= resolvedAutoStackTraceLevelInt) {
+                && eventObject instanceof LoggingEvent
+                && ((LoggingEvent) eventObject).getThrowableProxy() == null
+                && ((LoggingEvent) eventObject).getLevel() != null
+                && ((LoggingEvent) eventObject).getLevel().levelInt >= resolvedAutoStackTraceLevelInt) {
+            LoggingEvent le = (LoggingEvent) eventObject;
             Exception autoEx = new Exception("auto generated stacktrace");
             autoEx.setStackTrace(le.getCallerData());
             le.setThrowableProxy(new ThrowableProxy(autoEx));
@@ -155,11 +156,11 @@ public abstract class AbstractElasticsearchAppender extends UnsynchronizedAppend
 
     private boolean validateConfiguration() {
         boolean valid = true;
-        if (url == null || url.isBlank()) {
+        if (url == null || url.trim().isEmpty()) {
             addError("url must not be blank");
             valid = false;
         }
-        if (index == null || index.isBlank()) {
+        if (index == null || index.trim().isEmpty()) {
             addError("index must not be blank");
             valid = false;
         }
@@ -280,13 +281,13 @@ public abstract class AbstractElasticsearchAppender extends UnsynchronizedAppend
     }
 
     private void mirrorPayload(String payload) {
-        if (payload == null || payload.isBlank()) {
+        if (payload == null || payload.trim().isEmpty()) {
             return;
         }
         if (logsToStderr) {
             System.err.println(payload);
         }
-        if (loggerName != null && !loggerName.isBlank()) {
+        if (loggerName != null && !loggerName.trim().isEmpty()) {
             Logger logger = LoggerFactory.getLogger(loggerName);
             logger.info(payload);
         }
@@ -300,7 +301,7 @@ public abstract class AbstractElasticsearchAppender extends UnsynchronizedAppend
                 System.err.println(message + " - " + cause.getMessage());
             }
         }
-        if (errorLoggerName != null && !errorLoggerName.isBlank()) {
+        if (errorLoggerName != null && !errorLoggerName.trim().isEmpty()) {
             Logger logger = LoggerFactory.getLogger(errorLoggerName);
             if (cause == null) {
                 logger.error(message);
@@ -334,7 +335,7 @@ public abstract class AbstractElasticsearchAppender extends UnsynchronizedAppend
         this.resolvedAutoStackTraceLevelInt = Level.toLevel(level, Level.OFF).levelInt;
     }
     public void setOperation(String operation) {
-        if (operation == null || operation.isBlank()) {
+        if (operation == null || operation.trim().isEmpty()) {
             addWarn("Invalid value for [operation], using create");
             this.operation = "create";
             return;

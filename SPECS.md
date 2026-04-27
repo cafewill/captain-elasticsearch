@@ -1,6 +1,102 @@
 # Elasticsearch Appender 라이브러리 스펙 비교
 
-이 문서는 Spring Boot용 Appender 3종의 제공 기능과 설정값을 비교한다.
+## 0. 원본(3.0.19) 대비 bulk-only 추가 기능 및 호환 설정
+
+`lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0`은 원본인 `logback-elasticsearch-appender-3.0.19`을 기반으로 운영 편의성과 신뢰성을 높이기 위해 몇 가지 기능이 추가되고 기본값이 변경되었습니다.
+
+### 0-1. bulk-only 추가 기능 요약
+- **재큐(Requeue) 지원**: 전송 재시도 횟수 초과나 예외 발생 시, 로그를 즉시 버리지 않고 내부 큐에 다시 삽입하여 유실을 방지합니다 (`requeue-on-failure`).
+- **상태 유지 전송 스레드**: 로그가 없을 때 스레드를 종료하지 않고 대기하여, 새로운 로그 발생 시 스레드 기동 지연 없이 즉시 전송합니다 (`persistent-writer-thread`).
+- **개별 아이템 분석**: Bulk 응답 내의 개별 로그 항목별로 성공/실패를 분석하여, 일시적 오류(429, 5xx)가 발생한 항목만 골라 재시도합니다.
+- **SSL 검증 우회**: 자가 서명 인증서를 사용하는 내부망 환경에서도 별도 설정 없이 연결이 가능합니다 (`trust-all-ssl`).
+
+### 0-2. 원본(3.0.19)과 동일하게 동작시키기 위한 설정
+bulk-only 버전을 사용하면서 원본(`3.0.19`)과 최대한 동일한 기능과 기본값으로 운영하려면 `application.properties`에 아래와 같이 설정하십시오.
+
+```properties
+# --- 원본 호환성 설정 (bulk-only 적용 시) ---
+
+# 1. 기본 액션을 index에서 create로 변경 (원본 기본값: create)
+elasticsearch.operation=create
+
+# 2. MDC 정보 자동 포함 비활성화 (원본 기본값: false)
+elasticsearch.include-mdc=false
+
+# 3. 실패 시 큐 재삽입 기능 비활성화 (원본 미지원 기능)
+elasticsearch.requeue-on-failure=false
+
+# 4. 전송 스레드 상주 기능 비활성화 (원본은 필요 시 생성 방식)
+elasticsearch.persistent-writer-thread=false
+
+# 5. (참고) 원본은 모든 SSL 신뢰 기능을 제공하지 않으므로, 
+# 엄격한 보안 검증이 필요한 경우에만 false로 설정 (기본값: true)
+# elasticsearch.trust-all-ssl=false
+```
+
+## 1. Spring Boot application.properties 설정 가이드 (bulk-only 기준)
+
+`lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0` 라이브러리를 다른 버전들과 동일한 수준의 기능으로 운영하기 위한 `application.properties` 설정값입니다. 이 값들은 보통 `logback-spring.xml`에서 `<springProperty>` 태그를 통해 Appender로 주입되어 사용됩니다.
+
+```properties
+# --- 기본 연결 및 인증 설정 ---
+# Elasticsearch 클러스터 URL (필수)
+elasticsearch.url=http://localhost:9200
+# 인덱스 패턴 (필수). {date} 또는 %date{yyyy.MM.dd} 사용 가능
+elasticsearch.index=logs-app-{date}
+# Basic 인증 정보 (선택)
+elasticsearch.username=elastic
+elasticsearch.password=changeme
+
+# --- 동작 제어 및 데이터 포함 설정 ---
+# bulk 액션 타입. bulk-only 버전은 index 또는 create만 지원 (기본값: index)
+elasticsearch.operation=index
+# MDC(Mapped Diagnostic Context) 포함 여부 (기본값: true)
+elasticsearch.include-mdc=true
+# KeyValuePair(StructuredArguments) 포함 여부 (기본값: false)
+elasticsearch.include-kvp=true
+# 호출자 정보(클래스, 메서드, 라인) 포함 여부 - 성능 영향 있음 (기본값: false)
+elasticsearch.include-caller-data=false
+# logstash-logback-encoder의 StructuredArguments 추출 여부 (기본값: false)
+elasticsearch.include-structured-args=true
+
+# --- 신뢰성 및 성능 최적화 ---
+# 메모리 큐의 최대 크기 (바이트 단위, 약 20만건 수준)
+elasticsearch.max-queue-size=104857600
+# 한 번의 bulk 요청에 담을 최대 로그 수 (-1은 제한 없음, 큐를 즉시 비움)
+elasticsearch.max-batch-size=200
+# 큐를 확인하는 주기 및 재시도 간격 (ms, 기본값: 250)
+elasticsearch.sleep-time=250
+# 전송 실패 시 재시도 횟수 (기본값: 3)
+elasticsearch.max-retries=3
+# 최종 실패 시 로그를 유실하지 않고 큐에 재삽입 (bulk-only 전용, 기본값: true)
+elasticsearch.requeue-on-failure=true
+# 큐가 비어있어도 전송 스레드를 유지하여 지연 최소화 (기본값: true)
+elasticsearch.persistent-writer-thread=true
+
+# --- 네트워크 및 보안 ---
+# 연결 타임아웃 (ms, 기본값: 30000)
+elasticsearch.connect-timeout=5000
+# 읽기 타임아웃 (ms, 기본값: 30000)
+elasticsearch.read-timeout=30000
+# 모든 SSL 인증서 허용 (자가 서명 인증서 환경 대응, 기본값: true)
+elasticsearch.trust-all-ssl=true
+
+# --- 페이로드 커스터마이징 ---
+# 추가 속성 필드명 앞에 붙을 접두사 (기본값: "")
+elasticsearch.key-prefix=
+# 메시지 최대 길이 제한 (-1은 제한 없음)
+elasticsearch.max-message-size=-1
+# 메시지가 JSON 문자열인 경우 파싱하여 객체로 저장 (기본값: false)
+elasticsearch.raw-json-message=false
+# MDC/KVP 내 객체 직렬화 시 Jackson 모듈 사용 여부 (기본값: false)
+elasticsearch.object-serialization=false
+# 특정 레벨 이상 로그에 대해 스택트레이스 자동 생성 (기본값: OFF)
+elasticsearch.auto-stack-trace-level=OFF
+```
+
+---
+
+## 1. 요약 비교
 
 - 원본: `lib/logback-elasticsearch-appender-3.0.19`
 - 원본 동일 기능 커스터마이징: `lib/simple-lib-spring-elasticsearch-appender-3.0.0`
