@@ -55,8 +55,8 @@ cp .env-example .env
 
 | 디렉터리 | groupId | artifactId | version |
 |---|---|---|---|
-| `lib/simple-lib-spring-elasticsearch-appender-3.0.0` | `com.cube` | `simple-lib-spring-elasticsearch-appender` | `3.0.0` |
-| `lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0` | `com.cube` | `simple-lib-spring-elasticsearch-appender-bulk-only` | `3.0.0` |
+| `lib/simple-lib-spring-elasticsearch-appender-whole-1.0.0` | `com.cube.simple` | `simple-lib-spring-elasticsearch-appender-whole` | `1.0.0` |
+| `lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0` | `com.cube.simple` | `simple-lib-spring-elasticsearch-appender-bulk` | `1.0.0` |
 
 Spring Boot 배치잡/REST API 앱이 공통으로 사용하는 Elasticsearch Appender 라이브러리.  
 Maven Central 에 배포되지 않으므로 **개발자 로컬 `.m2` 저장소에 직접 설치**해야 한다.  
@@ -67,16 +67,16 @@ Spring Boot용 공용 라이브러리는 `lib/logback-elasticsearch-appender-3.0
 | 라이브러리 | 설명 |
 |---|---|
 | `lib/logback-elasticsearch-appender-3.0.19` | OpenSource Appender 커스터마이징 기준 원본 |
-| `lib/simple-lib-spring-elasticsearch-appender-3.0.0` | 원본과 동일 기능 제공 |
-| `lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0` | 본 프로젝트에서 요구하는 로그 모니터링 전용 기능 구현 |
+| `lib/simple-lib-spring-elasticsearch-appender-whole-1.0.0` | 원본과 동일 기능 제공 |
+| `lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0` | 본 프로젝트에서 요구하는 로그 모니터링 전용 기능 구현 |
 
-`bulk-only` 변형은 패키지명, 클래스명, 설정 파라미터를 동일하게 유지하되 `<operation>` 값을 Elasticsearch `_bulk` 의 `index` / `create` 액션으로만 제한한다.
+`bulk` 변형은 패키지명, 클래스명, 설정 파라미터를 동일하게 유지하되 `<operation>` 값을 Elasticsearch `_bulk` 의 `index` / `create` 액션으로만 제한한다.
 
 #### 설치 방법
 
 ```bash
 # 1. 라이브러리 디렉터리로 이동
-cd lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0
+cd lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0
 
 # 2. Maven Wrapper 로 빌드 & 로컬 .m2 설치
 #    (mvn 이 전역 설치되어 있으면 mvn install -q 로 대체 가능)
@@ -90,10 +90,10 @@ cd lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0
 #### 설치 확인
 
 ```bash
-ls ~/.m2/repository/com/cube/simple-lib-spring-elasticsearch-appender-bulk-only/3.0.0/
+ls ~/.m2/repository/com/cube/simple-lib-spring-elasticsearch-appender-bulk/1.0.0/
 # 아래 두 파일이 있으면 정상
-# simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0.jar
-# simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0.pom
+# simple-lib-spring-elasticsearch-appender-bulk-1.0.0.jar
+# simple-lib-spring-elasticsearch-appender-bulk-1.0.0.pom
 ```
 
 #### 소비 앱 의존성 선언
@@ -103,9 +103,9 @@ ls ~/.m2/repository/com/cube/simple-lib-spring-elasticsearch-appender-bulk-only/
 **Maven (`pom.xml`)**
 ```xml
 <dependency>
-    <groupId>com.cube</groupId>
-    <artifactId>simple-lib-spring-elasticsearch-appender-bulk-only</artifactId>
-    <version>3.0.0</version>
+    <groupId>com.cube.simple</groupId>
+    <artifactId>simple-lib-spring-elasticsearch-appender-bulk</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -117,7 +117,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.cube:simple-lib-spring-elasticsearch-appender-bulk-only:3.0.0'
+    implementation 'com.cube.simple:simple-lib-spring-elasticsearch-appender-bulk:1.0.0'
 }
 ```
 
@@ -130,7 +130,7 @@ dependencies {
 라이브러리 소스를 수정한 경우 반드시 재설치 후 소비 앱을 다시 빌드해야 한다.
 
 ```bash
-cd lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0
+cd lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0
 ../../simple-jobs-spring-maven/mvnw install -q   # 재설치
 
 # 이후 각 소비 앱 재빌드
@@ -236,7 +236,7 @@ npm run dev          # 개발 서버
 
 ```bash
 # 공통 라이브러리 재설치가 필요한 경우 먼저 수행
-cd lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0
+cd lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0
 ../../simple-jobs-spring-maven/mvnw install -q
 
 # Maven
@@ -264,8 +264,8 @@ cp src/main/resources/application-example.properties src/main/resources/applicat
 
 Spring 배치 앱에 MDC를 얹어 Elasticsearch로 함께 적재하려면 아래 순서로 진행합니다.
 
-1. `lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0` 를 로컬 `.m2` 에 설치합니다.
-2. 소비 앱 `pom.xml` 또는 `build.gradle` 에 `com.cube:simple-lib-spring-elasticsearch-appender-bulk-only:3.0.0` 의존성을 둡니다.
+1. `lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0` 를 로컬 `.m2` 에 설치합니다.
+2. 소비 앱 `pom.xml` 또는 `build.gradle` 에 `com.cube.simple:simple-lib-spring-elasticsearch-appender-bulk:1.0.0` 의존성을 둡니다.
 3. `application-example.properties` 를 `application.properties` 로 복사합니다.
 4. `logback-spring.xml` 에 `ElasticsearchAppender` 를 등록하고 `includeMdc=true`, `includeKvp=true`, `operation=index` 같은 값을 설정합니다.
 5. 배치 코드에서 `MDC.put("traceId", ...)`, `MDC.put("jobName", ...)` 식으로 커스텀 필드를 넣고, 로그 출력 후 `MDC.clear()` 로 정리합니다.
@@ -395,14 +395,14 @@ python main.py
 ## 2. 공용 Elasticsearch Appender 라이브러리 구성
 
 > 공통 설계 원칙 : **추가 의존성 최소화** — Spring Boot는 공용 Logback Appender 라이브러리, Node/Python은 각 런타임 내장 라이브러리 중심으로 구현  
-> Spring Boot 3.0.0 계열은 `ElasticsearchAppender` 통합 클래스 하나를 사용하고, 배치/REST 구분 필드는 MDC 또는 custom properties로 주입한다.
+> Spring Boot 1.0.0 계열은 `ElasticsearchAppender` 통합 클래스 하나를 사용하고, 배치/REST 구분 필드는 MDC 또는 custom properties로 주입한다.
 
 ### 2-1. 구성 파일 위치
 
 | 앱 유형 | 기술 스택 | Appender 파일 |
 |---|---|---|
-| 배치잡 | Spring Boot | `lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0/.../ElasticsearchAppender.java` |
-| REST API | Spring Boot | `lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0/.../ElasticsearchAppender.java` |
+| 배치잡 | Spring Boot | `lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0/.../ElasticsearchAppender.java` |
+| REST API | Spring Boot | `lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0/.../ElasticsearchAppender.java` |
 | 배치잡 | Node.js | `src/elasticsearch-job-appender.js` (또는 `.ts`) |
 | REST API | Node.js | `src/elasticsearch-web-appender.js` (또는 `.ts`) |
 | 프런트 | React / Next.js | `simple-page-react-nextjs/lib/elasticsearch-web-appender.js` |
@@ -421,10 +421,10 @@ python main.py
 
 ### 2-3. Spring Boot — 설정 방법
 
-**① `lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0` 로컬 설치 (최초 1회)**
+**① `lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0` 로컬 설치 (최초 1회)**
 
 ```bash
-cd lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0
+cd lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0
 ../../simple-jobs-spring-maven/mvnw install -q
 ```
 
@@ -433,9 +433,9 @@ cd lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0
 Maven (`pom.xml`)
 ```xml
 <dependency>
-    <groupId>com.cube</groupId>
-    <artifactId>simple-lib-spring-elasticsearch-appender-bulk-only</artifactId>
-    <version>3.0.0</version>
+    <groupId>com.cube.simple</groupId>
+    <artifactId>simple-lib-spring-elasticsearch-appender-bulk</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -443,7 +443,7 @@ Gradle (`build.gradle`)
 ```gradle
 repositories { mavenLocal(); mavenCentral() }
 dependencies {
-    implementation 'com.cube:simple-lib-spring-elasticsearch-appender-bulk-only:3.0.0'
+    implementation 'com.cube.simple:simple-lib-spring-elasticsearch-appender-bulk:1.0.0'
 }
 ```
 
@@ -511,7 +511,7 @@ elasticsearch.include-kvp=true
 elasticsearch.operation=create
 ```
 
-**④ SSL TrustAll (프라이밋 클라우드 자가 서명 인증서 대응, 3.0.0 기본 정책)**
+**④ SSL TrustAll (프라이밋 클라우드 자가 서명 인증서 대응, 1.0.0 기본 정책)**
 
 ```java
 // ElasticsearchSender 내부 — 별도 keystore 설정 없이 모든 인증서 허용
@@ -524,7 +524,7 @@ sc.init(null, new TrustManager[]{ new X509TrustManager() {
 ```
 
 > 이 프로젝트는 루트 인프라 환경대로 프라이밋 클라우드 VM / 자가 서명 인증서를 기본 전제로 둔다.
-> 따라서 Spring Boot appender `3.0.0`도 `trustAllSsl=true`를 기본값으로 유지한다.  
+> 따라서 Spring Boot appender `1.0.0`도 `trustAllSsl=true`를 기본값으로 유지한다.  
 > 외부망 또는 공인 인증서 환경에서는 `elasticsearch.trust-all-ssl=false`로 명시적으로 끄면 된다.
 
 **⑤ 배치잡 MDC 주입 예시**

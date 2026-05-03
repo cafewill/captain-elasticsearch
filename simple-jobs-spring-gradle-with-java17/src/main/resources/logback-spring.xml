@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+
+    <springProperty scope="context" name="ELASTICSEARCH_ENV"           source="elasticsearch.env"           defaultValue="local"/>
+    <springProperty scope="context" name="ELASTICSEARCH_NAME"          source="elasticsearch.name"          defaultValue="app"/>
+    <springProperty scope="context" name="ELASTICSEARCH_URL"           source="elasticsearch.url"           defaultValue="http://localhost:9200/_bulk"/>
+    <springProperty scope="context" name="ELASTICSEARCH_USER"          source="elasticsearch.username"      defaultValue="elastic"/>
+    <springProperty scope="context" name="ELASTICSEARCH_PASS"          source="elasticsearch.password"      defaultValue=""/>
+    <springProperty scope="context" name="ELASTICSEARCH_TRUST_ALL_SSL" source="elasticsearch.trust-all-ssl" defaultValue="true"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>log/%d{yyyyMMddHH}-${ELASTICSEARCH_NAME}.log</fileNamePattern>
+            <maxHistory>168</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="ELASTICSEARCH" class="com.github.cafewill.elasticsearch.ElasticsearchAppender">
+        <url>${ELASTICSEARCH_URL}</url>
+        <index>logs-${ELASTICSEARCH_NAME}-%date{yyyy.MM.dd}</index>
+        <authentication class="com.github.cafewill.elasticsearch.config.BasicAuthentication">
+            <username>${ELASTICSEARCH_USER}</username>
+            <password>${ELASTICSEARCH_PASS}</password>
+        </authentication>
+        <trustAllSsl>${ELASTICSEARCH_TRUST_ALL_SSL}</trustAllSsl>
+        <includeMdc>true</includeMdc>
+
+        <headers>
+            <header>
+                <name>Content-Type</name>
+                <value>application/x-ndjson</value>
+            </header>
+        </headers>
+
+        <properties>
+            <elasticsearchProperty>
+                <name>app</name>
+                <value>${ELASTICSEARCH_NAME}</value>
+            </elasticsearchProperty>
+            <elasticsearchProperty>
+                <name>env</name>
+                <value>${ELASTICSEARCH_ENV}</value>
+            </elasticsearchProperty>
+            <elasticsearchProperty>
+                <name>level</name>
+                <value>%level</value>
+            </elasticsearchProperty>
+            <elasticsearchProperty>
+                <name>logger</name>
+                <value>%logger</value>
+            </elasticsearchProperty>
+            <elasticsearchProperty>
+                <name>thread</name>
+                <value>%thread</value>
+            </elasticsearchProperty>
+            <elasticsearchProperty>
+                <name>stack_trace</name>
+                <value>%ex{full}</value>
+                <allowEmpty>false</allowEmpty>
+            </elasticsearchProperty>
+        </properties>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ELASTICSEARCH"/>
+    </root>
+
+</configuration>

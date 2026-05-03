@@ -1,20 +1,20 @@
 # Elasticsearch Appender 라이브러리 스펙 비교
 
-## 0. 원본(3.0.19) 대비 bulk-only 추가 기능 및 호환 설정
+## 0. 원본(3.0.19) 대비 bulk 추가 기능 및 호환 설정
 
-`lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0`은 원본인 `logback-elasticsearch-appender-3.0.19`을 기반으로 운영 편의성과 신뢰성을 높이기 위해 몇 가지 기능이 추가되고 기본값이 변경되었습니다.
+`lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0`은 원본인 `logback-elasticsearch-appender-3.0.19`을 기반으로 운영 편의성과 신뢰성을 높이기 위해 몇 가지 기능이 추가되고 기본값이 변경되었습니다.
 
-### 0-1. bulk-only 추가 기능 요약
+### 0-1. bulk 추가 기능 요약
 - **재큐(Requeue) 지원**: 전송 재시도 횟수 초과나 예외 발생 시, 로그를 즉시 버리지 않고 내부 큐에 다시 삽입하여 유실을 방지합니다 (`requeue-on-failure`).
 - **상태 유지 전송 스레드**: 로그가 없을 때 스레드를 종료하지 않고 대기하여, 새로운 로그 발생 시 스레드 기동 지연 없이 즉시 전송합니다 (`persistent-writer-thread`).
 - **개별 아이템 분석**: Bulk 응답 내의 개별 로그 항목별로 성공/실패를 분석하여, 일시적 오류(429, 5xx)가 발생한 항목만 골라 재시도합니다.
 - **SSL 검증 우회**: 자가 서명 인증서를 사용하는 내부망 환경에서도 별도 설정 없이 연결이 가능합니다 (`trust-all-ssl`).
 
 ### 0-2. 원본(3.0.19)과 동일하게 동작시키기 위한 설정
-bulk-only 버전을 사용하면서 원본(`3.0.19`)과 최대한 동일한 기능과 기본값으로 운영하려면 `application.properties`에 아래와 같이 설정하십시오.
+bulk 버전을 사용하면서 원본(`3.0.19`)과 최대한 동일한 기능과 기본값으로 운영하려면 `application.properties`에 아래와 같이 설정하십시오.
 
 ```properties
-# --- 원본 호환성 설정 (bulk-only 적용 시) ---
+# --- 원본 호환성 설정 (bulk 적용 시) ---
 
 # 1. 기본 액션을 index에서 create로 변경 (원본 기본값: create)
 elasticsearch.operation=create
@@ -33,9 +33,9 @@ elasticsearch.persistent-writer-thread=false
 # elasticsearch.trust-all-ssl=false
 ```
 
-## 1. Spring Boot application.properties 설정 가이드 (bulk-only 기준)
+## 1. Spring Boot application.properties 설정 가이드 (bulk 기준)
 
-`lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0` 라이브러리를 다른 버전들과 동일한 수준의 기능으로 운영하기 위한 `application.properties` 설정값입니다. 이 값들은 보통 `logback-spring.xml`에서 `<springProperty>` 태그를 통해 Appender로 주입되어 사용됩니다.
+`lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0` 라이브러리를 다른 버전들과 동일한 수준의 기능으로 운영하기 위한 `application.properties` 설정값입니다. 이 값들은 보통 `logback-spring.xml`에서 `<springProperty>` 태그를 통해 Appender로 주입되어 사용됩니다.
 
 ```properties
 # --- 기본 연결 및 인증 설정 ---
@@ -48,7 +48,7 @@ elasticsearch.username=elastic
 elasticsearch.password=changeme
 
 # --- 동작 제어 및 데이터 포함 설정 ---
-# bulk 액션 타입. bulk-only 버전은 index 또는 create만 지원 (기본값: index)
+# bulk 액션 타입. bulk 버전은 index 또는 create만 지원 (기본값: index)
 elasticsearch.operation=index
 # MDC(Mapped Diagnostic Context) 포함 여부 (기본값: true)
 elasticsearch.include-mdc=true
@@ -68,7 +68,7 @@ elasticsearch.max-batch-size=200
 elasticsearch.sleep-time=250
 # 전송 실패 시 재시도 횟수 (기본값: 3)
 elasticsearch.max-retries=3
-# 최종 실패 시 로그를 유실하지 않고 큐에 재삽입 (bulk-only 전용, 기본값: true)
+# 최종 실패 시 로그를 유실하지 않고 큐에 재삽입 (bulk 전용, 기본값: true)
 elasticsearch.requeue-on-failure=true
 # 큐가 비어있어도 전송 스레드를 유지하여 지연 최소화 (기본값: true)
 elasticsearch.persistent-writer-thread=true
@@ -99,12 +99,12 @@ elasticsearch.auto-stack-trace-level=OFF
 ## 1. 요약 비교
 
 - 원본: `lib/logback-elasticsearch-appender-3.0.19`
-- 원본 동일 기능 커스터마이징: `lib/simple-lib-spring-elasticsearch-appender-3.0.0`
-- 로그 모니터링 전용 bulk-only 구현: `lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0`
+- 원본 동일 기능 커스터마이징: `lib/simple-lib-spring-elasticsearch-appender-whole-1.0.0`
+- 로그 모니터링 전용 bulk 구현: `lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0`
 
 ## 1. 요약 비교
 
-| 항목 | logback-elasticsearch-appender 3.0.19 | simple-lib-spring-elasticsearch-appender 3.0.0 | simple-lib-spring-elasticsearch-appender-bulk-only 3.0.0 |
+| 항목 | logback-elasticsearch-appender 3.0.19 | simple-lib-spring-elasticsearch-appender-whole 1.0.0 | simple-lib-spring-elasticsearch-appender-bulk 1.0.0 |
 |---|---|---|---|
 | 목적 | Logback 이벤트를 Elasticsearch `_bulk` API로 전송하는 원본 | 원본 기능을 Elasticsearch 명칭과 패키지로 커스터마이징 | 프로젝트 로그 모니터링 전용으로 bulk index/create 중심 동작 보강 |
 | 대표 Appender | `ElasticsearchAppender`, `ElasticsearchAccessAppender`, `StructuredArgsElasticsearchAppender` | `ElasticsearchAppender`, `StructuredArgsElasticsearchAppender` | `ElasticsearchAppender`, `StructuredArgsElasticsearchAppender` |
@@ -132,7 +132,7 @@ elasticsearch.auto-stack-trace-level=OFF
 
 ### 2-1. Bulk 전송
 
-| 기능 | 원본 3.0.19 | simple 3.0.0 | bulk-only 3.0.0 |
+| 기능 | 원본 3.0.19 | whole 1.0.0 | bulk 1.0.0 |
 |---|---|---|---|
 | payload 형식 | NDJSON. action line + document line 반복 | NDJSON. action line + document line 반복 | NDJSON. action line + document line 반복 |
 | endpoint | `url` 값을 그대로 사용 | `url`이 `/_bulk`로 끝나지 않으면 `/_bulk` 자동 추가 | `url`이 `/_bulk`로 끝나지 않으면 `/_bulk` 자동 추가 |
@@ -144,12 +144,12 @@ elasticsearch.auto-stack-trace-level=OFF
 
 ### 2-2. Operation
 
-| operation | 원본 3.0.19 | simple 3.0.0 | bulk-only 3.0.0 | 설명 |
+| operation | 원본 3.0.19 | whole 1.0.0 | bulk 1.0.0 | 설명 |
 |---|---|---|---|---|
 | `index` | 지원 | 지원 | 지원 | 같은 `_id`가 있으면 덮어쓸 수 있는 bulk index 작업. 현재 프로젝트 로그 적재 기본 방식 |
 | `create` | 지원, 기본값 | 지원, 기본값 | 지원 | 같은 `_id`가 있으면 version conflict가 날 수 있는 생성 전용 작업 |
-| `update` | 지원 | 지원 | 미지원 | 로그 신규 적재용으로는 부적합. bulk-only에서는 설정 시 `index`로 대체 |
-| `delete` | 지원 | 지원 | 미지원 | 로그 신규 적재용으로는 부적합. bulk-only에서는 설정 시 `index`로 대체 |
+| `update` | 지원 | 지원 | 미지원 | 로그 신규 적재용으로는 부적합. bulk에서는 설정 시 `index`로 대체 |
+| `delete` | 지원 | 지원 | 미지원 | 로그 신규 적재용으로는 부적합. bulk에서는 설정 시 `index`로 대체 |
 | 잘못된 값 | 경고 후 `create` 사용 | 경고 후 `create` 사용 | 경고 후 `index` 사용 | 빈 값도 같은 기본값으로 대체 |
 
 ## 3. 설정값 비교
@@ -163,36 +163,36 @@ elasticsearch.auto-stack-trace-level=OFF
 
 ### 3-1. 연결/인증 설정
 
-| 설정값 | 단위/타입 | 원본 기본값 | simple 기본값 | bulk-only 기본값 | 기능 및 변경 시 동작 | 초과/오류 시 동작 |
+| 설정값 | 단위/타입 | 원본 기본값 | simple 기본값 | bulk 기본값 | 기능 및 변경 시 동작 | 초과/오류 시 동작 |
 |---|---:|---:|---:|---:|---|---|
-| `url` | URL/String | 없음 | 없음 | 없음 | 전송 대상 URL. 원본은 값을 그대로 사용하고, simple/bulk-only는 `/_bulk`가 없으면 자동 추가 | 비어 있으면 simple/bulk-only는 appender 시작 실패. 원본은 출력 writer가 생성되지 않거나 URL 설정 오류 발생 |
-| `index` | String | 없음 | 없음 | 없음 | bulk action의 `_index`. `%date{yyyy.MM.dd}` 또는 `{date}` 패턴으로 일자 치환 가능 | 비어 있으면 simple/bulk-only는 appender 시작 실패 |
+| `url` | URL/String | 없음 | 없음 | 없음 | 전송 대상 URL. 원본은 값을 그대로 사용하고, simple/bulk는 `/_bulk`가 없으면 자동 추가 | 비어 있으면 simple/bulk는 appender 시작 실패. 원본은 출력 writer가 생성되지 않거나 URL 설정 오류 발생 |
+| `index` | String | 없음 | 없음 | 없음 | bulk action의 `_index`. `%date{yyyy.MM.dd}` 또는 `{date}` 패턴으로 일자 치환 가능 | 비어 있으면 simple/bulk는 appender 시작 실패 |
 | `type` | String | 없음 | 없음 | 없음 | bulk action metadata의 `_type`. Elasticsearch 2.x/3.x에서는 일반적으로 사용하지 않음 | 값이 있으면 그대로 `_type`에 포함 |
-| `authentication` | Object | 없음 | 없음 | 없음 | Basic/AWS 등 인증 헤더 추가. simple/bulk-only는 `ElasticsearchBasicAuthentication` 제공 | 인증 실패는 보통 HTTP 401/403. 원본은 4xx에서 버퍼 drop, simple/bulk-only는 fatal 처리 |
-| `headers` | Object list | 없음 | 없음 | 없음 | 커스텀 HTTP 헤더 추가. 원본은 `Content-Encoding: gzip` 지정 시 gzip 전송 | 잘못된 헤더명/빈 이름은 simple/bulk-only에서 무시 |
+| `authentication` | Object | 없음 | 없음 | 없음 | Basic/AWS 등 인증 헤더 추가. simple/bulk는 `ElasticsearchBasicAuthentication` 제공 | 인증 실패는 보통 HTTP 401/403. 원본은 4xx에서 버퍼 drop, simple/bulk는 fatal 처리 |
+| `headers` | Object list | 없음 | 없음 | 없음 | 커스텀 HTTP 헤더 추가. 원본은 `Content-Encoding: gzip` 지정 시 gzip 전송 | 잘못된 헤더명/빈 이름은 simple/bulk에서 무시 |
 | `connectTimeout` | ms | 30000 ms = 30 sec | 30000 ms = 30 sec | 30000 ms = 30 sec | TCP 연결 대기 시간. 작게 하면 장애 감지가 빠르고, 크게 하면 느린 네트워크를 더 기다림 | 시간 초과 시 전송 예외. 재시도 대상 |
 | `readTimeout` | ms | 30000 ms = 30 sec | 30000 ms = 30 sec | 30000 ms = 30 sec | 응답 읽기 대기 시간. 큰 bulk나 느린 Elasticsearch에서는 늘릴 수 있음 | 시간 초과 시 전송 예외. 재시도 대상 |
 | `trustAllSsl` | boolean | 미지원 | `true` | `true` | 자가 서명 인증서와 hostname 검증 우회. 프라이빗 클라우드 테스트용 | `false`에서 인증서 검증 실패 시 전송 예외. 재시도 대상 |
 
 ### 3-2. 큐/배치/전송 주기 설정
 
-| 설정값 | 단위/타입 | 원본 기본값 | simple 기본값 | bulk-only 기본값 | 기능 및 변경 시 동작 | 초과/오류 시 동작 |
+| 설정값 | 단위/타입 | 원본 기본값 | simple 기본값 | bulk 기본값 | 기능 및 변경 시 동작 | 초과/오류 시 동작 |
 |---|---:|---:|---:|---:|---|---|
-| `sleepTime` | ms | 250 ms | 250 ms | 250 ms | writer loop 대기/flush/retry 간격. 낮추면 지연은 줄고 CPU/전송 빈도는 증가 | 원본/simple/bulk-only 모두 100 ms 미만이면 100 ms로 보정 |
-| `maxRetries` | count | 3 | 3 | 3 | 실패 전송 재시도 횟수. 실제 시도는 최초 1회 + 재시도 N회 | simple/bulk-only는 음수 입력 시 0으로 보정. 재시도 초과 시 simple은 drop, bulk-only는 설정에 따라 재큐 |
-| `maxQueueSize` | 원본: char, simple/bulk-only: byte 환산값 | 104857600 = 100 MB 수준 | 104857600 = 100 MB, capacity 약 204800 event | 104857600 = 100 MB, capacity 약 204800 event | 원본은 전송 문자열 버퍼 최대 길이. simple/bulk-only는 `maxQueueSize / 512`로 event queue capacity 계산, 최소 100 event | 원본은 초과 후 버퍼가 비워질 때까지 신규 로그 유실. simple/bulk-only는 queue full이면 해당 event drop |
+| `sleepTime` | ms | 250 ms | 250 ms | 250 ms | writer loop 대기/flush/retry 간격. 낮추면 지연은 줄고 CPU/전송 빈도는 증가 | 원본/simple/bulk 모두 100 ms 미만이면 100 ms로 보정 |
+| `maxRetries` | count | 3 | 3 | 3 | 실패 전송 재시도 횟수. 실제 시도는 최초 1회 + 재시도 N회 | simple/bulk는 음수 입력 시 0으로 보정. 재시도 초과 시 simple은 drop, bulk는 설정에 따라 재큐 |
+| `maxQueueSize` | 원본: char, simple/bulk: byte 환산값 | 104857600 = 100 MB 수준 | 104857600 = 100 MB, capacity 약 204800 event | 104857600 = 100 MB, capacity 약 204800 event | 원본은 전송 문자열 버퍼 최대 길이. simple/bulk는 `maxQueueSize / 512`로 event queue capacity 계산, 최소 100 event | 원본은 초과 후 버퍼가 비워질 때까지 신규 로그 유실. simple/bulk는 queue full이면 해당 event drop |
 | `maxBatchSize` | event | -1 = 무제한 | -1 = 무제한 | -1 = 무제한 | 한 번의 bulk payload에 담을 최대 event 수. 양수면 해당 수 이상 모이면 flush | -1 또는 0 이하면 건수 제한 없음. 너무 크게 잡으면 payload와 메모리 사용 증가 |
 | `persistentWriterThread` | boolean | 미지원 | `false` | `true` | true면 appender 생명주기 동안 daemon writer thread 유지. false면 이벤트 발생 시 thread 시작 후 idle 종료 | false에서 이벤트가 다시 들어오면 writer thread를 재기동 |
 | `requeueOnFailure` | boolean | 미지원 | 미지원 | `true` | 재시도 초과/중단/예외 발생 시 실패 item을 내부 큐에 다시 넣음 | 재큐 시 큐가 가득 차면 재삽입 실패 event는 drop |
 
 ### 3-3. 메시지/필드 구성 설정
 
-| 설정값 | 단위/타입 | 원본 기본값 | simple 기본값 | bulk-only 기본값 | 기능 및 변경 시 동작 | 초과/오류 시 동작 |
+| 설정값 | 단위/타입 | 원본 기본값 | simple 기본값 | bulk 기본값 | 기능 및 변경 시 동작 | 초과/오류 시 동작 |
 |---|---:|---:|---:|---:|---|---|
-| `includeMdc` | boolean | `false` | `true` | `true` | MDC map을 Elasticsearch 문서 필드로 추가 | simple/bulk-only는 `@timestamp`, `level`, `thread`, `logger`, `message` 같은 고정 필드 충돌 키를 무시 |
-| `includeKvp` | boolean | `false` | `false` | `false` | SLF4J 2 key-value pair를 문서 필드로 추가 | null pair, 빈 key, 고정 필드 충돌 key는 simple/bulk-only에서 무시 |
+| `includeMdc` | boolean | `false` | `true` | `true` | MDC map을 Elasticsearch 문서 필드로 추가 | simple/bulk는 `@timestamp`, `level`, `thread`, `logger`, `message` 같은 고정 필드 충돌 키를 무시 |
+| `includeKvp` | boolean | `false` | `false` | `false` | SLF4J 2 key-value pair를 문서 필드로 추가 | null pair, 빈 key, 고정 필드 충돌 key는 simple/bulk에서 무시 |
 | `includeCallerData` | boolean | `false` | `false` | `false` | caller class/method/file/line 추가. 호출 위치 계산 비용 증가 | caller data가 없으면 필드 미추가 |
-| `rawJsonMessage` | boolean | `false` | `false` | `false` | true면 message를 JSON으로 파싱해 object/array로 저장 시도 | 파싱 실패 시 simple/bulk-only는 문자열 message로 저장 |
+| `rawJsonMessage` | boolean | `false` | `false` | `false` | true면 message를 JSON으로 파싱해 object/array로 저장 시도 | 파싱 실패 시 simple/bulk는 문자열 message로 저장 |
 | `maxMessageSize` | char | -1 = 무제한 | -1 = 무제한 | -1 = 무제한 | message 최대 길이. 양수면 해당 문자 수까지만 보존 | 초과 시 앞부분 `N` char + `..`로 truncate |
 | `timestampFormat` | String | 기본 `yyyy-MM-dd'T'HH:mm:ss.SSSZ`; `long` 가능 | 기본 ISO offset date-time, JVM 기본 timezone; `long` 가능 | 기본 ISO offset date-time, JVM 기본 timezone; `long` 가능 | 날짜 포맷 문자열 지정. `long`이면 epoch millis 숫자로 저장 | 잘못된 패턴은 이벤트 직렬화 중 예외 가능 |
 | `keyPrefix` | String | 없음 | `""` | `""` | StructuredArguments 필드명 앞에 prefix 추가 | null이면 빈 문자열 처리 |
@@ -207,7 +207,7 @@ elasticsearch.auto-stack-trace-level=OFF
 
 ## 4. 장애/한도 초과 시 동작
 
-| 상황 | 원본 3.0.19 | simple 3.0.0 | bulk-only 3.0.0 |
+| 상황 | 원본 3.0.19 | whole 1.0.0 | bulk 1.0.0 |
 |---|---|---|---|
 | Elasticsearch 연결 실패 | send buffer 유지 후 `maxRetries`까지 재시도. 초과 시 writer 종료 가능 | 현재 batch를 `maxRetries`만큼 재시도 후 drop | 현재 batch를 `maxRetries`만큼 재시도 후 `requeueOnFailure=true`면 큐에 재삽입 |
 | HTTP 429 또는 5xx | 재시도 | 재시도 | 재시도 |
@@ -225,6 +225,6 @@ elasticsearch.auto-stack-trace-level=OFF
 | 사용 목적 | 권장 라이브러리 | 이유 |
 |---|---|---|
 | 원본 동작 검증 또는 레퍼런스 확인 | `lib/logback-elasticsearch-appender-3.0.19` | upstream 기능 기준점 |
-| 원본과 최대한 동일한 Elasticsearch 명칭 커스터마이징 검증 | `lib/simple-lib-spring-elasticsearch-appender-3.0.0` | create/update/delete 포함 원본 operation 범위 유지 |
-| 프로젝트 로그 모니터링 운영 예제 | `lib/simple-lib-spring-elasticsearch-appender-bulk-only-3.0.0` | bulk `index` 기본, partial failure 분석, retry, 재큐, persistent writer 기본값 제공 |
+| 원본과 최대한 동일한 Elasticsearch 명칭 커스터마이징 검증 | `lib/simple-lib-spring-elasticsearch-appender-whole-1.0.0` | create/update/delete 포함 원본 operation 범위 유지 |
+| 프로젝트 로그 모니터링 운영 예제 | `lib/simple-lib-spring-elasticsearch-appender-bulk-1.0.0` | bulk `index` 기본, partial failure 분석, retry, 재큐, persistent writer 기본값 제공 |
 
