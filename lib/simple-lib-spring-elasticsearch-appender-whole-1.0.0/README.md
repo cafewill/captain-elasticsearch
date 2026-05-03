@@ -1,3 +1,4 @@
+=======
 Logback Elasticsearch Appender
 ===============================
 
@@ -17,19 +18,19 @@ Include slf4j and logback as usual (depending on this library will *not* automat
 In your `pom.xml` (or equivalent), add:
 
      <dependency>
-        <groupId>com.agido</groupId>
-        <artifactId>logback-elasticsearch-appender</artifactId>
-        <version>3.0.11</version>
+        <groupId>com.cube.simple</groupId>
+        <artifactId>simple-lib-spring-elasticsearch-appender-whole</artifactId>
+        <version>1.0.0</version>
      </dependency>
 
 In your `logback.xml`:
 
-        <appender name="ELASTIC" class="com.agido.logback.elasticsearch.ElasticsearchAppender">
+        <appender name="ELASTICSEARCH" class="com.github.cafewill.elasticsearch.ElasticsearchAppender">
             <url>http://yourserver/_bulk</url>
             <index>logs-%date{yyyy-MM-dd}</index>
             <type>tester</type>
-            <loggerName>es-logger</loggerName> <!-- optional -->
-            <errorLoggerName>es-error-logger</errorLoggerName> <!-- optional -->
+            <loggerName>elasticsearch-logger</loggerName> <!-- optional -->
+            <errorLoggerName>elasticsearch-error-logger</errorLoggerName> <!-- optional -->
             <connectTimeout>30000</connectTimeout> <!-- optional (in ms, default 30000) -->
             <errorsToStderr>false</errorsToStderr> <!-- optional (default false) -->
             <includeCallerData>false</includeCallerData> <!-- optional (default false) -->
@@ -43,34 +44,34 @@ In your `logback.xml`:
             <includeMdc>false</includeMdc> <!-- optional (default false) -->
             <includeKvp>false</includeKvp> <!-- optional (default false) -->
             <maxMessageSize>100</maxMessageSize> <!-- optional (default -1 -->
-            <authentication class="com.agido.logback.elasticsearch.config.BasicAuthentication" /> <!-- optional -->
+            <authentication class="com.github.cafewill.elasticsearch.config.BasicAuthentication" /> <!-- optional -->
             <objectSerialization>true</objectSerialization> <!-- optional (default false) -->
             <keyPrefix>data.</keyPrefix> <!-- optional (default None) -->
             <operation>index</operation> <!-- optional (supported: index, create, update, delete - default create) -->
             <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSZ</timestampFormat>  <!-- optional (default None  if set long to the timestamp milliseconds long value) -->
             <properties>
-                <!-- please note that <property> tags are also supported, esProperty was added for logback-1.3 compatibility -->
-                <esProperty>
+                <!-- please note that <property> tags are also supported, elasticsearchProperty was added for logback-1.3 compatibility -->
+                <elasticsearchProperty>
                     <name>host</name>
                     <value>${HOSTNAME}</value>
                     <allowEmpty>false</allowEmpty>
-                </esProperty>
-                <esProperty>
+                </elasticsearchProperty>
+                <elasticsearchProperty>
                     <name>severity</name>
                     <value>%level</value>
-                </esProperty>
-                <esProperty>
+                </elasticsearchProperty>
+                <elasticsearchProperty>
                     <name>thread</name>
                     <value>%thread</value>
-                </esProperty>
-                <esProperty>
+                </elasticsearchProperty>
+                <elasticsearchProperty>
                     <name>stacktrace</name>
                     <value>%ex</value>
-                </esProperty>
-                <esProperty>
+                </elasticsearchProperty>
+                <elasticsearchProperty>
                     <name>logger</name>
                     <value>%logger</value>
-                </esProperty>
+                </elasticsearchProperty>
             </properties>
             <headers>
                 <header>
@@ -82,14 +83,14 @@ In your `logback.xml`:
 
         <root level="info">
             <appender-ref ref="FILELOGGER" />
-            <appender-ref ref="ELASTIC" />
+            <appender-ref ref="ELASTICSEARCH" />
         </root>
 
-        <logger name="es-error-logger" level="INFO" additivity="false">
+        <logger name="elasticsearch-error-logger" level="INFO" additivity="false">
             <appender-ref ref="FILELOGGER" />
         </logger>
 
-        <logger name="es-logger" level="INFO" additivity="false">
+        <logger name="elasticsearch-logger" level="INFO" additivity="false">
             <appender name="ES_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
                 <!-- ... -->
                 <encoder>
@@ -105,7 +106,7 @@ Configuration Reference
 
  * `url` (required): The URL to your Elasticsearch bulk API endpoint
  * `index` (required): Name if the index to publish to (populated using PatternLayout just like individual properties - see below)
- * `type` (optional): Elasticsearch `_type` field for records. Although this library does not require `type` to be populated, Elasticsearch may, unless the configured URL includes the type (i.e. `{index}/{type}/_bulk` as opposed to `/_bulk` and `/{index}/_bulk`). See the Elasticsearch [Bulk API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html) documentation for more information
+ * `type` (optional): Elasticsearch `_type` field for records. Although this library does not require `type` to be populated, Elasticsearch may, unless the configured URL includes the type (i.e. `{index}/{type}/_bulk` as opposed to `/_bulk` and `/{index}/_bulk`). See the Elasticsearch [Bulk API](https://docs.elasticsearch.org/latest/api-reference/document-apis/bulk/) documentation for more information
  * `sleepTime` (optional, default 250): Time (in ms) to sleep when the event queue is empty. Note: the appender drains the queue first before sleeping, so this only affects idle periods
  * `maxBatchSize` (optional, default -1): Maximum number of events to process in a single batch. Set to -1 for unlimited (drain entire queue). Useful for controlling memory usage and ensuring predictable batch sizes
  * `maxRetries` (optional, default 3): Number of times to attempt retrying a message on failure. Note that subsequent log messages reset the retry count to 0. This value is important if your program is about to exit (i.e. it is not producing any more log lines) but is unable to deliver some messages to ES
@@ -124,9 +125,9 @@ Configuration Reference
  * `authentication` (optional): Add the ability to send authentication headers (see below)
  * `objectSerialization` (optional): specifies whether to use POJO to JSON serialization 
  * `keyPrefix` (optional): objects logged within a message will also be logged separately with this prefix added
- * `operation` (optional, default create): Possible values are: `index`, `create`, `update` & `delete`, see the Elasticsearch [Bulk API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html) documentation for more information
+ * `operation` (optional, default create): Possible values are: `index`, `create`, `update` & `delete`, see the Elasticsearch [Bulk API](https://docs.elasticsearch.org/latest/api-reference/document-apis/bulk/) documentation for more information
 
-The fields `@timestamp` and `message` are always sent and can not currently be configured. Additional fields can be sent by adding `<esProperty>` elements to the `<properties>` set.
+The fields `@timestamp` and `message` are always sent and can not currently be configured. Additional fields can be sent by adding `<elasticsearchProperty>` elements to the `<properties>` set.
 
  * `name` (required): Key to be used in the log event
  * `value` (required): Text string to be sent. Internally, the value is populated using a Logback PatternLayout, so all [Conversion Words](http://logback.qos.ch/manual/layouts.html#conversionWord) can be used (in addition to the standard static variable interpolations like `${HOSTNAME}`).
@@ -138,9 +139,9 @@ Groovy Configuration
 
 If you configure logback using `logback.groovy`, this can be configured as follows:
 
-      import com.agido.logback.elasticsearch.ElasticsearchAppender
+      import com.github.cafewill.elasticsearch.ElasticsearchAppender
 
-      appender("ELASTIC", ElasticsearchAppender){
+      appender("ELASTICSEARCH", ElasticsearchAppender){
       	url = 'http://yourserver/_bulk'
       	index = 'logs-%date{yyyy-MM-dd}'
       	type = 'log'
@@ -152,17 +153,17 @@ If you configure logback using `logback.groovy`, this can be configured as follo
       	headers = configHeaders
       }
 
-      root(INFO, ["ELASTIC"])
+      root(INFO, ["ELASTICSEARCH"])
 
 Authentication
 ==============
 
 Authentication is a pluggable mechanism. You must specify the authentication class on the XML element itself. The currently supported classes are:
 
-* `com.agido.logback.elasticsearch.config.BasicAuthentication` - Supports two configuration methods:
+* `com.github.cafewill.elasticsearch.config.BasicAuthentication` - Supports two configuration methods:
   * **Recommended**: Use `<username>` and `<password>` elements (no URL-encoding required):
     ```xml
-    <authentication class="com.agido.logback.elasticsearch.config.BasicAuthentication">
+    <authentication class="com.github.cafewill.elasticsearch.config.BasicAuthentication">
         <username>myuser</username>
         <password>p@ss€word#123</password>
     </authentication>
@@ -171,15 +172,15 @@ Authentication is a pluggable mechanism. You must specify the authentication cla
     ```xml
     <url>http://user:p%40ssword@yourserver/_bulk</url>
     ```
-* `com.agido.logback.elasticsearch.config.AWSAuthentication` - Authenticate using the AWS SDK, for use with the [Amazon Elasticsearch Service](https://aws.amazon.com/elasticsearch-service/) (note that you will also need to include `com.amazonaws:aws-java-sdk-core` as a dependency)
+* `com.github.cafewill.elasticsearch.config.AWSAuthentication` - Authenticate using the AWS SDK, for use with the [Amazon Elasticsearch Service](https://aws.amazon.com/elasticsearch-service/) (note that you will also need to include `com.amazonaws:aws-java-sdk-core` as a dependency)
 
 Logback Access
 ==============
 
 Included is also an Elasticsearch appender for Logback Access. The configuration is almost identical, with the following two differences:
 
- * The Appender class name is `com.agido.logback.elasticsearch.ElasticsearchAccessAppender`
- * The `value` for each `esProperty` uses the [Logback Access conversion words](http://logback.qos.ch/manual/layouts.html#logback-access).
+ * The Appender class name is `com.github.cafewill.elasticsearch.ElasticsearchAccessAppender`
+ * The `value` for each `elasticsearchProperty` uses the [Logback Access conversion words](http://logback.qos.ch/manual/layouts.html#logback-access).
 
 Prevent Major API change
 ========================
