@@ -1,40 +1,33 @@
-# ────────────────────────────────────────────────────────────────────────────
-# Spring Boot
-# ────────────────────────────────────────────────────────────────────────────
-target/
-bin/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-*.class
-*.jar
-*.war
-*.ear
-*.nar
-hs_err_pid*
-replay_pid*
-
-# Maven wrapper cache
-.mvn/wrapper/maven-wrapper.jar
-
-# Gradle wrapper cache
-.gradle/
-!gradle/wrapper/gradle-wrapper.jar
-
-# Spring Boot log files
-log/
-logs/
-*.log
-*.log.*
+# Local identity, environment, and secrets
+.who
+!.who-example
+!.who.example
+.env
+.env.*
+!.env-example
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
 
 # STS / Eclipse
-.apt_generated
+.metadata/
+.apt_generated/
+.apt_generated_tests/
 .classpath
 .factorypath
 .project
 .settings/
 .springBeans
 .sts4-cache/
+.recommenders/
+.externalToolBuilders/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
 
 # IntelliJ IDEA
 .idea/
@@ -43,129 +36,167 @@ logs/
 *.ipr
 out/
 
-# VS Code (Java)
-.vscode/
-.flattened-pom.xml
+# NetBeans
+nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
 
-# ────────────────────────────────────────────────────────────────────────────
-# Node.js
-# ────────────────────────────────────────────────────────────────────────────
+# Editors
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Java / Spring / Maven / Gradle
+target/
+bin/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+.gradle/
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.properties.sha256
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+!**/.mvn/wrapper/maven-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.jar
+!**/libs/**/*.jar
+.flattened-pom.xml
+dependency-reduced-pom.xml
+hs_err_pid*
+replay_pid*
+.mtj.tmp/
+
+# Node.js and frontend tooling
 node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+.next/
+.nuxt/
+.svelte-kit/
+.parcel-cache/
+.turbo/
+.vite/
+.vercel/
+dist/
+coverage/
+.nyc_output/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
 
-# Next.js
-.next/
-out/
-.vercel
+# Keep dependency lockfiles trackable
+!package-lock.json
+!yarn.lock
+!pnpm-lock.yaml
 
-# NestJS
-dist/
+# Python environments
+.venv/
+venv/
+env/
+ENV/
 
-# Runtime
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# ────────────────────────────────────────────────────────────────────────────
-# Python
-# ────────────────────────────────────────────────────────────────────────────
+# Python bytecode and caches
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 *.pyd
-
-# 가상환경
-venv/
-.venv/
-env/
-.env/
-ENV/
-
-# 배포/빌드 산출물
-*.egg
-*.egg-info/
-dist/
-build/
-.eggs/
-wheels/
-
-# pytest / coverage
 .pytest_cache/
-.coverage
-.coverage.*
-coverage.xml
-htmlcov/
-.tox/
-.nox/
-
-# mypy / pyright
 .mypy_cache/
 .dmypy.json
 dmypy.json
 .pyright/
-
-# Jupyter
+.ruff_cache/
+.hypothesis/
 .ipynb_checkpoints/
+.cache/
 
-# ────────────────────────────────────────────────────────────────────────────
-# 작업자 로컬 설정
-# ────────────────────────────────────────────────────────────────────────────
-.who
+# Python packaging and build
+.eggs/
+*.egg
+*.egg-info/
+*.dist-info/
+pip-wheel-metadata/
+wheels/
+.pyinstaller-cache/
+.tox/
+.nox/
 
-# ────────────────────────────────────────────────────────────────────────────
-# 환경 변수 / 시크릿
-# ────────────────────────────────────────────────────────────────────────────
-.env
-.env.*
-!.env.example
-*.pem
-*.key
-*.p12
-*.jks
+# Test, coverage, and browser output
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
 
-# ────────────────────────────────────────────────────────────────────────────
-# AI 도구 로컬 설정 (Claude, ChatGPT, Gemini, Qwen 등)
-# ────────────────────────────────────────────────────────────────────────────
-.claude/
+# Runtime databases
+*.db
+*.sqlite
+*.sqlite3
+*.h2.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Local AI tool settings
+.claude/settings.local.json
+.codex/settings.local.json
+.gemini/settings.local.json
 .cursor/
 .aider*
 .chatgpt/
-.gemini/
 .qwen/
 .copilot/
 .codeium/
 .tabnine/
 .continue/
 
-# ────────────────────────────────────────────────────────────────────────────
-# OS / 에디터
-# ────────────────────────────────────────────────────────────────────────────
-# macOS
+# Logs, runtime, and temporary files
+log/
+logs/
+pids/
+*.log
+*.log.*
+*.pid
+*.pid.lock
+*.seed
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+.tmp/
+tmp/
+temp/
+
+# OS metadata
 .DS_Store
 .AppleDouble
 .LSOverride
 ._*
-
-# Windows
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
-# Linux
-*~
+# Local Elasticsearch volume data
+elasticsearch*-data/
 
-# ────────────────────────────────────────────────────────────────────────────
-# Docker
-# ────────────────────────────────────────────────────────────────────────────
-# 로컬 Docker 볼륨 데이터 (실수로 커밋 방지)
-opensearch*-data/
+# Generated multi-stack sample dependencies
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+**/.mvn/wrapper/maven-wrapper.jar
+**/gradle/wrapper/gradle-wrapper.jar
